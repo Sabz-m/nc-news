@@ -1,6 +1,6 @@
 # Northcoders News API
 
-In order to successfully connect to the two databases locally you would need to create a .env.development file and a .env.test file.
+In order to successfully connect to the two databases locally you would need to create a .env.development file and a .env.test file..
 
 ---
 
