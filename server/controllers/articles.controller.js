@@ -1,15 +1,18 @@
-const { fetchArticle } = require("../models/articles.model");
+const { fetchArticle, fetchArticles } = require("../models/articles.model");
 
-exports.getArticle = (req, res) => {
+exports.getArticles = (req, res, next) => {
+  return fetchArticles().then((rows) => {
+    res.status(200).send({ articles: rows });
+  });
+};
+
+exports.getArticle = (req, res, next) => {
   const { article_id } = req.params;
   return fetchArticle(article_id)
     .then((article) => {
       res.status(200).send({ articles: article });
     })
     .catch((err) => {
-      if (err.code === "22P02") {
-        return res.status(400).send({ msg: "Bad request" });
-      }
-      res.status(404).send({ msg: "article does not exist" });
+      next(err);
     });
 };
