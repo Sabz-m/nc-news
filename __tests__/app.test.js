@@ -42,12 +42,12 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: Responds with an object detailing the documentation for endpoint GET /api/topics", () => {
+  test("200: Responds with an article object depending on the article_id given", () => {
     return request(app)
       .get("/api/articles/2")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toMatchObject({
+        expect(body.article).toMatchObject({
           article_id: 2,
           title: "Sony Vaio; or, The Laptop",
           topic: "mitch",
@@ -65,7 +65,7 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("article does not exist");
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("GET:400 sends an appropriate status and error message when given an invalid article_id", () => {
@@ -119,6 +119,162 @@ describe("GET /api/articles", () => {
             body: expect.any(String),
           });
         });
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: Responds with an object that returns the comments of a specific article", () => {
+    const input = 5;
+    return request(app)
+      .get(`/api/articles/${input}/comments`)
+      .expect(200)
+      .then(({ body }) => {
+        body.comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: input,
+          });
+        });
+      });
+  });
+  test("200: Responds with an array of comments objects sorted by created_at in descending order ", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+  test("GET:404 sends an appropriate status and error message when given a valid but non-existent article_id", () => {
+    return request(app)
+      .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("GET:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    return request(app)
+      .get("/api/articles/not-an-article/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: responds with a newly created user object", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "I love cheeseburgers",
+    };
+
+    return request(app)
+      .post(`/api/articles/1/comments`)
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: 1,
+          })
+        );
+      });
+  });
+  test("POST:404 sends an appropriate status and error message when given a valid but non-existent article_id", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "I love cheeseburgers",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("POST:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "I love cheeseburgers",
+    };
+    return request(app)
+      .post("/api/articles/not-an-article/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("POST:400 sends an appropriate status and error message when given an invalid comment", () => {
+    const newComment = {};
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: responds with an updated vote for a article", () => {
+    const updateVote = { inc_votes: 2 };
+
+    return request(app)
+      .patch(`/api/articles/1`)
+      .send(updateVote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.votes).toEqual(102);
+      });
+  });
+  test("PATCH:404 sends an appropriate status and error message when given a valid but non-existent article_id", () => {
+    const updateVote = { inc_votes: -202 };
+
+    return request(app)
+      .patch(`/api/articles/56`)
+      .send(updateVote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("PATCH:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    const updateVote = { inc_votes: -202 };
+
+    return request(app)
+      .patch(`/api/articles/not-an-article`)
+      .send(updateVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    const updateVote = { inc_votes: "not a number" };
+
+    return request(app)
+      .patch(`/api/articles/5`)
+      .send(updateVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
       });
   });
 });
