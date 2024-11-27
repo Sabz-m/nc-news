@@ -20,37 +20,23 @@ exports.fetchArticle = (article_id) => {
     .query(`SELECT * FROM articles WHERE article_id = $1;`, [article_id])
     .then((result) => {
       if (result.rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "article does not exist" });
+        return Promise.reject({ status: 404, msg: "Not Found" });
       } else {
         return result.rows[0];
       }
     });
 };
 
-exports.fetchCommentsByArticleId = (article_id) => {
+exports.updateArticlebyArticleId = (article_id, inc_votes) => {
   return db
     .query(
-      `SELECT * FROM comments WHERE article_id = $1
-    ORDER BY created_at DESC;`,
-      [article_id]
+      `UPDATE articles
+        SET votes = votes + $1
+        WHERE article_id = $2
+        RETURNING *;`,
+      [inc_votes, article_id]
     )
-    .then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "article does not exist" });
-      } else {
-        return result.rows;
-      }
-    });
-};
-
-exports.addCommentsByArticleId = (newComment, article_id) => {
-  const { username, body } = newComment;
-  return db
-    .query(
-      `INSERT INTO comments (author,body, article_id) VALUES ($1,$2,$3) RETURNING * ;`,
-      [username, body, article_id]
-    )
-    .then(({ rows }) => {
-      return rows[0];
+    .then(({ rows: [article] }) => {
+      return article;
     });
 };

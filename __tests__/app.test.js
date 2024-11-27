@@ -42,12 +42,12 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: Responds with an object detailing the documentation for endpoint GET /api/topics", () => {
+  test("200: Responds with an article object depending on the article_id given", () => {
     return request(app)
       .get("/api/articles/2")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toMatchObject({
+        expect(body.article).toMatchObject({
           article_id: 2,
           title: "Sony Vaio; or, The Laptop",
           topic: "mitch",
@@ -65,7 +65,7 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("article does not exist");
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("GET:400 sends an appropriate status and error message when given an invalid article_id", () => {
@@ -157,7 +157,7 @@ describe("GET /api/articles/:article_id/comments", () => {
       .get("/api/articles/999/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("article does not exist");
+        expect(body.msg).toBe("Not Found");
       });
   });
   test("GET:400 sends an appropriate status and error message when given an invalid article_id", () => {
@@ -178,7 +178,7 @@ describe("POST /api/articles/:article_id/comments", () => {
     };
 
     return request(app)
-      .post(`/api/articles/5/comments`)
+      .post(`/api/articles/1/comments`)
       .send(newComment)
       .expect(201)
       .then(({ body: { comment } }) => {
@@ -189,7 +189,7 @@ describe("POST /api/articles/:article_id/comments", () => {
             created_at: expect.any(String),
             author: expect.any(String),
             body: expect.any(String),
-            article_id: 5,
+            article_id: 1,
           })
         );
       });
@@ -225,6 +225,53 @@ describe("POST /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/5/comments")
       .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
+
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: responds with an updated vote for a article", () => {
+    const updateVote = { inc_votes: 2 };
+
+    return request(app)
+      .patch(`/api/articles/1`)
+      .send(updateVote)
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.votes).toEqual(102);
+      });
+  });
+  test("PATCH:404 sends an appropriate status and error message when given a valid but non-existent article_id", () => {
+    const updateVote = { inc_votes: -202 };
+
+    return request(app)
+      .patch(`/api/articles/56`)
+      .send(updateVote)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("PATCH:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    const updateVote = { inc_votes: -202 };
+
+    return request(app)
+      .patch(`/api/articles/not-an-article`)
+      .send(updateVote)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("PATCH:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    const updateVote = { inc_votes: "not a number" };
+
+    return request(app)
+      .patch(`/api/articles/5`)
+      .send(updateVote)
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("Bad request");
