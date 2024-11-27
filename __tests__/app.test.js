@@ -169,3 +169,65 @@ describe("GET /api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: responds with a newly created user object", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "I love cheeseburgers",
+    };
+
+    return request(app)
+      .post(`/api/articles/5/comments`)
+      .send(newComment)
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: 5,
+          })
+        );
+      });
+  });
+  test("POST:404 sends an appropriate status and error message when given a valid but non-existent article_id", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "I love cheeseburgers",
+    };
+    return request(app)
+      .post("/api/articles/999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not found");
+      });
+  });
+  test("POST:400 sends an appropriate status and error message when given an invalid article_id", () => {
+    const newComment = {
+      username: "icellusedkars",
+      body: "I love cheeseburgers",
+    };
+    return request(app)
+      .post("/api/articles/not-an-article/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+  test("POST:400 sends an appropriate status and error message when given an invalid comment", () => {
+    const newComment = {};
+    return request(app)
+      .post("/api/articles/5/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
