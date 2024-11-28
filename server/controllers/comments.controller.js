@@ -2,6 +2,8 @@ const { fetchArticle } = require("../models/articles.model");
 const {
   fetchCommentsByArticleId,
   addCommentsByArticleId,
+  removeCommentBycommentId,
+  checkIfCommentsExists,
 } = require("../models/comments.models");
 
 exports.getCommentsByArticleId = (req, res, next) => {
@@ -24,6 +26,23 @@ exports.postCommentsByArticleId = (req, res, next) => {
   addCommentsByArticleId(newComment, article_id)
     .then((insertedComment) => {
       res.status(201).send({ comment: insertedComment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.deleteCommentBycommentId = (req, res, next) => {
+  const { comment_id } = req.params;
+  const promises = [
+    checkIfCommentsExists(comment_id),
+    removeCommentBycommentId(comment_id),
+  ];
+
+  Promise.all(promises)
+    .then((comment) => {
+      console.log(comment);
+      res.status(204).send(comment);
     })
     .catch((err) => {
       next(err);

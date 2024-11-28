@@ -278,3 +278,29 @@ describe("PATCH /api/articles/:article_id", () => {
       });
   });
 });
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: responds with ano content as the content has been deleted", () => {
+    return request(app)
+      .delete(`/api/comments/5`)
+      .expect(204)
+      .then(({ body }) => {
+        expect(body).toEqual({});
+      });
+  });
+  test("DELETE:404 sends an appropriate status and error message when given a valid but non-existent comment_id", () => {
+    return request(app)
+      .delete(`/api/comments/345`)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Not Found");
+      });
+  });
+  test("DELETE:400 sends an appropriate status and error message when given an invalid comment_id", () => {
+    return request(app)
+      .delete(`/api/comments/not-a-comment`)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Bad request");
+      });
+  });
+});
