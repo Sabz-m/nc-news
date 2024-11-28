@@ -17,6 +17,7 @@ const {
   serverErrorHandler,
 } = require("./error-handler");
 const { getUsers } = require("./controllers/users.controller");
+
 const app = express();
 
 app.use(express.json());
