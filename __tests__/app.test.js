@@ -322,3 +322,36 @@ describe("GET /api/users", () => {
       });
   });
 });
+
+describe("GET /api/articles? with a query", () => {
+  test("200: Responds with an array of article objects sorted by created_at in descending order ", () => {
+    return request(app)
+      .get("/api/articles?")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSorted("created_at", {
+          descending: true,
+        });
+      });
+  });
+  test("200: Responds with an array of article objects sorted by created_at in ascending order ", () => {
+    return request(app)
+      .get("/api/articles?order=ASC")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSorted("created_at", {
+          descending: false,
+        });
+      });
+  });
+  test("200: Responds with an array of article objects sorted by votes in descending order ", () => {
+    return request(app)
+      .get("/api/articles?sortBy=votes&&order=ASC")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSorted("votes", {
+          descending: false,
+        });
+      });
+  });
+});
