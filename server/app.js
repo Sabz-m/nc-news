@@ -4,11 +4,12 @@ const { getTopics } = require("./controllers/topics.controller");
 const {
   getArticles,
   getArticle,
-  patchArticlebyArticleId,
+  patchArticleByArticleId,
 } = require("./controllers/articles.controller");
 const {
   getCommentsByArticleId,
   postCommentsByArticleId,
+  deleteCommentBycommentId,
 } = require("./controllers/comments.controller");
 const {
   postgresErrorHandler,
@@ -31,7 +32,9 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 
 app.post("/api/articles/:article_id/comments", postCommentsByArticleId);
 
-app.patch("/api/articles/:article_id", patchArticlebyArticleId);
+app.patch("/api/articles/:article_id", patchArticleByArticleId);
+
+app.delete("/api/comments/:comment_id", deleteCommentBycommentId);
 
 app.all("*", (res, req) => {
   res.status(404).send({ msg: "Not Found" });
