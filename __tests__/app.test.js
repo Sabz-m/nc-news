@@ -323,7 +323,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe("GET /api/articles? with a queries", () => {
+describe("GET /api/articles? with queries", () => {
   test("200: Responds with an array of article objects sorted by created_at in descending order ", () => {
     return request(app)
       .get("/api/articles?")
@@ -354,14 +354,25 @@ describe("GET /api/articles? with a queries", () => {
         });
       });
   });
-  test("200: Responds with an array of article objects where topic is mitch ", () => {
+  test("200: Responds with an array of article objects where topic = mitch ", () => {
     return request(app)
-      .get("/api/articles?sortBy=article_id&order=DESC")
+      .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeSortedBy("article_id", {
-          descending: true,
+        expect(articles).toHaveLength(12);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            topic: "mitch",
+          });
         });
+      });
+  });
+  test("200: Responds with the comment count for a specified article", () => {
+    return request(app)
+      .get("/api/articles/5?comment_count")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        expect(article.comment_count).toBe(`2`);
       });
   });
 });
