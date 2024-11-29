@@ -329,7 +329,7 @@ describe("GET /api/articles? with a query", () => {
       .get("/api/articles?")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeSorted("created_at", {
+        expect(articles).toBeSortedBy("created_at", {
           descending: true,
         });
       });
@@ -339,19 +339,17 @@ describe("GET /api/articles? with a query", () => {
       .get("/api/articles?order=ASC")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeSorted("created_at", {
+        expect(articles).toBeSortedBy("created_at", {
           descending: false,
         });
       });
   });
-  test("200: Responds with an array of article objects sorted by votes in descending order ", () => {
+  test("200: Responds with an array of article objects sorted by article_id in ascending order ", () => {
     return request(app)
-      .get("/api/articles?sortBy=votes&&order=ASC")
+      .get("/api/articles?sortBy=article_id&&order=ASC")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeSorted("votes", {
-          descending: false,
-        });
+        expect(articles).toBeSortedBy("article_id");
       });
   });
 });
