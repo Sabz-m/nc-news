@@ -367,4 +367,13 @@ describe("GET /api/articles? with queries", () => {
         });
       });
   });
+  test("200: Responds with the comment count for a specified article", () => {
+    return request(app)
+      .get("/api/articles/5?comment_count")
+      .expect(200)
+      .then(({ body: { article } }) => {
+        console.log(article);
+        expect(article.comment_count).toBe(`2`);
+      });
+  });
 });
