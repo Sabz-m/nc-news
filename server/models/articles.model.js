@@ -1,18 +1,20 @@
 const db = require("../../db/connection");
 
-exports.fetchArticles = (sortBy = `created_at`, order = `DESC`) => {
-  return db
-    .query(
-      `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, 
-      COUNT(comments.article_id) AS comment_count
-      FROM articles 
-      LEFT OUTER JOIN comments ON articles.article_id = comments.article_id
-      GROUP BY articles.article_id
-      ORDER BY ${sortBy} ${order};`
-    )
-    .then(({ rows }) => {
-      return rows;
-    });
+exports.fetchArticles = (sortBy = `created_at`, order = `DESC`, topic) => {
+  const topicSQLParams = [];
+  let sqlQuery = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count FROM articles LEFT OUTER JOIN comments ON articles.article_id = comments.article_id `;
+
+  if (topic) {
+    sqlQuery += `WHERE articles.topic = $1 `;
+    topicSQLParams.push(topic);
+  }
+  sqlQuery += `GROUP BY articles.article_id `;
+
+  sqlQuery += `ORDER BY ${sortBy} ${order};`;
+
+  return db.query(sqlQuery, topicSQLParams).then(({ rows }) => {
+    return rows;
+  });
 };
 
 exports.fetchArticle = (article_id) => {
