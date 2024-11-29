@@ -372,7 +372,6 @@ describe("GET /api/articles? with queries", () => {
       .get("/api/articles/5?comment_count")
       .expect(200)
       .then(({ body: { article } }) => {
-        console.log(article);
         expect(article.comment_count).toBe(`2`);
       });
   });

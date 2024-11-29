@@ -24,7 +24,6 @@ exports.fetchArticle = (article_id, comment_count) => {
       [article_id]
     )
     .then((result) => {
-      console.log(result.rows[0]);
       if (result.rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Not Found" });
       } else {
