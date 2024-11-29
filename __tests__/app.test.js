@@ -323,7 +323,7 @@ describe("GET /api/users", () => {
   });
 });
 
-describe("GET /api/articles? with a query", () => {
+describe("GET /api/articles? with a queries", () => {
   test("200: Responds with an array of article objects sorted by created_at in descending order ", () => {
     return request(app)
       .get("/api/articles?")
@@ -345,6 +345,16 @@ describe("GET /api/articles? with a query", () => {
       });
   });
   test("200: Responds with an array of article objects sorted by article_id in ascending order ", () => {
+    return request(app)
+      .get("/api/articles?sortBy=article_id&order=DESC")
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles).toBeSortedBy("article_id", {
+          descending: true,
+        });
+      });
+  });
+  test("200: Responds with an array of article objects where topic is mitch ", () => {
     return request(app)
       .get("/api/articles?sortBy=article_id&order=DESC")
       .expect(200)
