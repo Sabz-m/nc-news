@@ -1,6 +1,6 @@
 const db = require("../../db/connection");
 
-exports.fetchArticles = (sortBy = `created_at`, order = `DESC`) => {
+exports.fetchArticles = (sortBy = "created_at", order = "DESC") => {
   return db
     .query(
       `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, articles.article_img_url, 
