@@ -349,9 +349,7 @@ describe("GET /api/articles? with a query", () => {
       .get("/api/articles?sortBy=article_id&&order=ASC")
       .expect(200)
       .then(({ body: { articles } }) => {
-        expect(articles).toBeSortedBy("article_id", {
-          descending: false,
-        });
+        expect(articles).toBeSortedBy("article_id");
       });
   });
 });
