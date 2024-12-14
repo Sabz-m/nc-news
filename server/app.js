@@ -21,8 +21,13 @@ const { getUsers } = require("./controllers/users.controller");
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+
 app.use(express.json());
-app.use(cors());
 
 app.get("/api", getApi);
 
